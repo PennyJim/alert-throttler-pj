@@ -3,30 +3,37 @@
 ---@param force LuaForce
 function handle_alert(tick, force)
 	for player_index, player in pairs(force.players) do
-		if player.valid then
-			local alerts = global.alerts[player_index]
-			local psettings = settings.get_player_settings(player_index)
-			local destruction_buffer = psettings["destroyed-building-buffer"].value - 1
-			local destruction_time = math.floor(psettings["destroyed-building-timeout"].value * 60)
+		if not player.valid then return end
+		local alerts = global.alerts[player_index]
+		local psettings = settings.get_player_settings(player_index)
+		local destruction_buffer = psettings["destroyed-building-buffer"].value - 1
+		local destruction_time = math.floor(psettings["destroyed-building-timeout"].value * 60)
+		local min_alert_time = math.floor(psettings["min-alert-time"].value * 60)
 
-			if not alerts then
-				global.alerts[player_index] = {
-					index = 0,
-					buffer = {}
+		if not alerts then
+			global.alerts[player_index] = {
+				index = 0,
+				buffer = {},
+				count = 0,
+				last_alerted = 0,
+			}
+			alerts = global.alerts[player_index]
+		end
+
+		alerts.buffer[alerts.index - destruction_buffer] = nil
+		alerts.index = alerts.index + 1
+		alerts.buffer[alerts.index] = tick
+		oldest_alert = alerts.buffer[alerts.index - destruction_buffer]
+		if oldest_alert and tick - oldest_alert <= destruction_time then
+			if tick - alerts.last_alerted > min_alert_time then
+				alerts.last_alerted = tick
+				-- TODO: add special logic for higher levels of alerts to sound different tiers of alerts?
+				player.play_sound{
+					path="cya-alert-destroyed"
 				}
-				alerts = global.alerts[player_index]
-			end
-
-			if alerts then
-				alerts.buffer[alerts.index - destruction_buffer] = nil
-				alerts.index = alerts.index + 1
-				alerts.buffer[alerts.index] = tick
-				oldest_alert = alerts.buffer[alerts.index - destruction_buffer]
-				if oldest_alert and tick - oldest_alert <= destruction_time then
-					player.play_sound{
-						path="cya-alert-destroyed"
-					}
-				end
+				alerts.count = 0
+			else
+				alerts.count = alerts.count + 1
 			end
 		end
 	end
