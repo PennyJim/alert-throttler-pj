@@ -1,0 +1,13 @@
+---------------------------------------------------------------------------------------------------
+Version: 1.1.0
+Date: 2024-02-20
+  Major Features:
+    - Actually added throttling
+  Info:
+    - Setup to possibly add tiered alerts so something like 200 alerts condensed into 1 sounds different than 3 alerts condensed into 1
+      I am requesting alert sounds to use for this as I do not think I will choose/make even slightly good sounds.
+---------------------------------------------------------------------------------------------------
+Version: 0.0.0
+Date: 2024-02-19
+  Major Features:
+    - Added minimum threshold for alerts
