@@ -1,3 +1,13 @@
+---@class ThrottlerGlobal
+---@field alerts table<integer, throttled_alert>
+global = {}
+
+---@class throttled_alert
+---@field index integer
+---@field buffer table<integer,integer>
+---@field count integer
+---@field last_alerted integer
+
 ---Handles alerts
 ---@param tick integer
 ---@param force LuaForce
@@ -16,7 +26,7 @@ function handle_alert(tick, force)
 				buffer = {},
 				count = 0,
 				last_alerted = 0,
-			}
+			} --[[@as throttled_alert]]
 			alerts = global.alerts[player_index]
 		end
 
@@ -47,7 +57,7 @@ function handle_entity_death(event)
 		if entity.type == "combat-robot" then return end
 
 		local caused = event.force
-		local force = entity.force
+		local force = entity.force --[[@as LuaForce]]
 
 		if caused ~= force then
 			handle_alert(event.tick, force)
